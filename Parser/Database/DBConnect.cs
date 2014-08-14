@@ -75,7 +75,7 @@ namespace Database {
             }
         }
 
-        public void InsertOutputs( List<SimplifiedOutput> outputs ) {
+        public void InsertOutputs( IEnumerable< SimplifiedOutput > outputs ) {
             var query = new StringBuilder();
             query.Append( "LOCK TABLES output WRITE; INSERT INTO output (value, publicAddress, outputIndex, transactionHash, timestamp) VALUES" );
             var isFirstElement = true;
@@ -86,7 +86,7 @@ namespace Database {
                 query.Append( "(" );
                 query.Append( output.Value.ToString() );
                 query.Append( ",'" );
-                query.Append( output.PublicAddress.ToString() );
+                query.Append( output.PublicAddress );
                 query.Append( "'," );
                 query.Append( output.Index.ToString() );
                 query.Append( ",'" );
@@ -108,7 +108,7 @@ namespace Database {
             //this.CloseConnection();
         }
 
-        public void InsertInputs( List<Simplifiednput> inputs ) {
+        public void InsertInputs( IEnumerable< Simplifiednput > inputs ) {
             var query = new StringBuilder();
             query.Append( "LOCK TABLES input WRITE; INSERT INTO input (transactionHash, previousTransactionHash, previousTransactionOutputIndex) VALUES" );
             var isFirstElement = true;
@@ -195,18 +195,20 @@ namespace Database {
             query.Append( "where totals.transactionHash = output.transactionHash group by output.publicAddress;" );
 
             //Create Command
-            var cmd = new MySqlCommand( query.ToString(), this._connection );
-            cmd.CommandTimeout = 120;
+            var cmd = new MySqlCommand( query.ToString(), this._connection ) {
+                                                                                 CommandTimeout = 120
+                                                                             };
             //Create a data reader and Execute the command
             try {
                 var dataReader = cmd.ExecuteReader();
                 //Read the data and store them in the list
                 while ( dataReader.Read() ) {
-                    var transaction = new Transaction();
-                    transaction.Source = address;
-                    transaction.Target = ( String )dataReader[ "target" ];
-                    transaction.Value = Convert.ToUInt64( dataReader[ "value" ] );
-                    transaction.Weight = Convert.ToUInt16( dataReader[ "weight" ] );
+                    var transaction = new Transaction {
+                                                          Source = address,
+                                                          Target = ( String ) dataReader[ "target" ],
+                                                          Value = Convert.ToUInt64( dataReader[ "value" ] ),
+                                                          Weight = Convert.ToUInt16( dataReader[ "weight" ] )
+                                                      };
                     jsonList.Add( transaction );
                 }
 

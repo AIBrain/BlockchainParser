@@ -8,7 +8,7 @@ namespace UnitTests
         [TestMethod]
         public void Populate_Graph_Duplicate_Check()
         {
-            var temp = GraphDataStructure.Graph.Populate("1Ka3xYZb6tZQabpkFCnpqods6gC8iNEcZ7", 1, 150);
+            var temp = GraphDataStructure.Graph.Populate( publicAddress: "1Ka3xYZb6tZQabpkFCnpqods6gC8iNEcZ7", degree: 1, tooBigToAddToNetwork: 150);
 
             foreach(var item in temp.NodeSet)
             {

@@ -7,7 +7,7 @@ using Database;
 namespace GraphDataStructure {
 
     public class Graph {
-        private List<Node> _nodeList;
+        private readonly List<Node> _nodeList;
         private Dictionary<String, int> _index;
 
         public Graph() {
@@ -157,11 +157,12 @@ namespace GraphDataStructure {
                     }
                 }
                 Console.WriteLine( currentDegree.Count + " queries to go" );
-                if ( currentDegree.Count <= 0 ) {
-                    count++;
-                    currentDegree = nextDegree;
-                    nextDegree = new Queue<String>();
+                if ( currentDegree.Count > 0 ) {
+                    continue;
                 }
+                count++;
+                currentDegree = nextDegree;
+                nextDegree = new Queue<String>();
             }
             database.CloseConnection();
             return graph;
