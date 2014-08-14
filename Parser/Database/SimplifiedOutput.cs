@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Database {
 
-namespace Database
-{
-    public class SimplifiedOutput
-    {
+    public class SimplifiedOutput {
         public ulong value;
         public string publicAddress;
         public uint index;

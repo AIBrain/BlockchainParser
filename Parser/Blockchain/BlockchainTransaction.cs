@@ -30,7 +30,7 @@ namespace Blockchain
         }
         private static byte[] Sha256(byte[] array)
         {
-            SHA256Managed hashstring = new SHA256Managed();
+            var hashstring = new SHA256Managed();
             return hashstring.ComputeHash(array);
         }
     }

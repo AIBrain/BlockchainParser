@@ -15,7 +15,7 @@ namespace Parser
         public static string getPublicKey(byte[] scrypt)
         {
             outputs++;
-            int length = scrypt.Length;
+            var length = scrypt.Length;
             if (length == 67)
             {
                 return sixtySevenByte(scrypt);
@@ -42,19 +42,19 @@ namespace Parser
         }
         private static string sixtySevenByte(byte[] scrypt)
         {
-            byte[] key = new byte[65];
+            var key = new byte[65];
             Array.Copy(scrypt, 1, key, 0, 65);
             return AddressHelper.EllipticCurveToBTCAddress(key);
         }
         private static string sixtySixByte(byte[] scrypt)
         {
-            byte[] key = new byte[65];
+            var key = new byte[65];
             Array.Copy(scrypt, key, 65);
             return AddressHelper.EllipticCurveToBTCAddress(key);
         }
         private static string twentyFiveByte(byte[] scrypt)
         {
-            byte[] key = new byte[20];
+            var key = new byte[20];
             Array.Copy(scrypt, 3, key, 0, 20);
             return AddressHelper.ripemdToBTCAddress(key);
         }
