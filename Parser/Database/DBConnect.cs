@@ -7,11 +7,11 @@ namespace Database {
 
     public sealed class DBConnect {
         private MySqlConnection _connection;
-        private string _server;
-        private string _database;
-        private string _uid;
-        private string _password;
-        private string _timeout;
+        private String _server;
+        private String _database;
+        private String _uid;
+        private String _password;
+        private String _timeout;
 
         public DBConnect() {
             Initialize();
@@ -23,19 +23,19 @@ namespace Database {
             this._uid = "root";
             this._password = "tiny";
             this._timeout = "100";
-            var connectionString = string.Format( "SERVER={0};DATABASE={1};UID={2};PASSWORD={3};Connect Timeout={4}", this._server, this._database, this._uid, this._password, this._timeout );
+            var connectionString = String.Format( "SERVER={0};DATABASE={1};UID={2};PASSWORD={3};Connect Timeout={4}", this._server, this._database, this._uid, this._password, this._timeout );
 
             this._connection = new MySqlConnection( connectionString );
         }
 
         public void SetMaxAddressQuerryTime( int time ) {
-            var querry = string.Format( "SET SESSION MAX_STATEMENT_TIME={0};", time );
+            var querry = String.Format( "SET SESSION MAX_STATEMENT_TIME={0};", time );
             var cmd = new MySqlCommand( querry, this._connection );
             cmd.ExecuteNonQuery();
         }
 
         public void UnlockTables() {
-            const string querry = "UNLOCK TABLES;";
+            const String querry = "UNLOCK TABLES;";
             var cmd = new MySqlCommand( querry, this._connection );
             cmd.ExecuteNonQuery();
         }
@@ -84,15 +84,15 @@ namespace Database {
                     query.Append( "," );
                 }
                 query.Append( "(" );
-                query.Append( output.value.ToString() );
+                query.Append( output.Value.ToString() );
                 query.Append( ",'" );
-                query.Append( output.publicAddress.ToString() );
+                query.Append( output.PublicAddress.ToString() );
                 query.Append( "'," );
-                query.Append( output.index.ToString() );
+                query.Append( output.Index.ToString() );
                 query.Append( ",'" );
-                query.Append( output.transactionHash );
+                query.Append( output.TransactionHash );
                 query.Append( "'," );
-                query.Append( output.timestamp.ToString() );
+                query.Append( output.Timestamp.ToString() );
                 query.Append( ")" );
                 isFirstElement = false;
             }
@@ -117,11 +117,11 @@ namespace Database {
                     query.Append( "," );
                 }
                 query.Append( "('" );
-                query.Append( input.transactionHash );
+                query.Append( input.TransactionHash );
                 query.Append( "','" );
-                query.Append( input.previousTransactionHash );
+                query.Append( input.PreviousTransactionHash );
                 query.Append( "'," );
-                query.Append( input.previousTransactionOutputIndex.ToString() );
+                query.Append( input.PreviousTransactionOutputIndex.ToString() );
                 query.Append( ")" );
                 isFirstElement = false;
             }
@@ -136,7 +136,7 @@ namespace Database {
             //this.CloseConnection();
         }
 
-        public List<Transaction> getRecivedFrom( string address ) {
+        public List<Transaction> getRecivedFrom( String address ) {
             var jsonList = new List<Transaction>();
             var query = new StringBuilder();
             query.Append( "Select output.publicAddress as source, SUM(totals.value) as value, COUNT(output.publicAddress) AS weight " );
@@ -148,19 +148,21 @@ namespace Database {
             query.Append( "where totals.previousTransactionHash = output.transactionHash and totals.previousTransactionOutputIndex = output.outputIndex group by output.publicAddress;" );
 
             //Create Command
-            var cmd = new MySqlCommand( query.ToString(), this._connection );
-            cmd.CommandTimeout = 120;
+            var cmd = new MySqlCommand( query.ToString(), this._connection ) {
+                                                                                 CommandTimeout = 120
+                                                                             };
             //Create a data reader and Execute the command
             try {
                 var dataReader = cmd.ExecuteReader();
 
                 //Read the data and store them in the list
                 while ( dataReader.Read() ) {
-                    var transaction = new Transaction();
-                    transaction.source = ( string )dataReader[ "source" ];
-                    transaction.target = address;
-                    transaction.value = Convert.ToUInt64( dataReader[ "value" ] );
-                    transaction.weight = Convert.ToUInt16( dataReader[ "weight" ] );
+                    var transaction = new Transaction {
+                                                          Source = ( String ) dataReader[ "source" ],
+                                                          Target = address,
+                                                          Value = Convert.ToUInt64( dataReader[ "value" ] ),
+                                                          Weight = Convert.ToUInt16( dataReader[ "weight" ] )
+                                                      };
                     jsonList.Add( transaction );
                 }
 
@@ -179,7 +181,7 @@ namespace Database {
             }
         }
 
-        public List<Transaction> getSentTo( string address ) {
+        public List<Transaction> getSentTo( String address ) {
             var jsonList = new List<Transaction>();
             var query = new StringBuilder();
 
@@ -201,10 +203,10 @@ namespace Database {
                 //Read the data and store them in the list
                 while ( dataReader.Read() ) {
                     var transaction = new Transaction();
-                    transaction.source = address;
-                    transaction.target = ( string )dataReader[ "target" ];
-                    transaction.value = Convert.ToUInt64( dataReader[ "value" ] );
-                    transaction.weight = Convert.ToUInt16( dataReader[ "weight" ] );
+                    transaction.Source = address;
+                    transaction.Target = ( String )dataReader[ "target" ];
+                    transaction.Value = Convert.ToUInt64( dataReader[ "value" ] );
+                    transaction.Weight = Convert.ToUInt16( dataReader[ "weight" ] );
                     jsonList.Add( transaction );
                 }
 

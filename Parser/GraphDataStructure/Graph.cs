@@ -8,15 +8,15 @@ namespace GraphDataStructure {
 
     public class Graph {
         private List<Node> _nodeList;
-        private Dictionary<string, int> _index;
+        private Dictionary<String, int> _index;
 
         public Graph() {
             this._nodeList = new List<Node>();
-            this._index = new Dictionary<string, int>();
+            this._index = new Dictionary<String, int>();
         }
 
         private void reIndex() {
-            this._index = new Dictionary<string, int>();
+            this._index = new Dictionary<String, int>();
             for ( var i = 0; i < _nodeList.Count; i++ ) {
                 _index.Add( _nodeList[ i ].Address, i );
             }
@@ -42,28 +42,28 @@ namespace GraphDataStructure {
             }
         }
 
-        public void addNode( string address, int degree ) {
+        public void addNode( String address, int degree ) {
             var node = new Node( address );
             this._nodeList.Add( node );
             node.Degree = degree;
             this._index.Add( address, this._nodeList.Count - 1 );
         }
 
-        public void addDirectedEdge( string from, string to, decimal value, uint weight, int degree ) {
+        public void addDirectedEdge( String from, String to, Decimal value, UInt32 weight, int degree ) {
             this._nodeList.ElementAt( getNode( from ) ).addNeighbor( this._nodeList.ElementAt( getNode( to ) ), value, weight, degree );
         }
 
-        public int getNode( string nodeAddress ) {
+        public int getNode( String nodeAddress ) {
             return this._index[ nodeAddress ];
         }
 
-        public void writeJSONToFile( string fileName, string data ) {
+        public void writeJSONToFile( String fileName, String data ) {
             using ( var file = new System.IO.StreamWriter( fileName, true ) ) {
                 file.Write( data );
             }
         }
 
-        public string buildNodeJsonString() {
+        public String buildNodeJsonString() {
             var jsonString = new StringBuilder( "\"nodes\": [ " );
             var firstNodeSet = true;
             foreach ( var node in this._nodeList ) {
@@ -79,7 +79,7 @@ namespace GraphDataStructure {
             return jsonString.ToString();
         }
 
-        public string buildLinkJsonString() {
+        public String buildLinkJsonString() {
             var jsonString = new StringBuilder( "\"links\": [" );
             var firstNode = true;
 
@@ -97,7 +97,7 @@ namespace GraphDataStructure {
             return jsonString.ToString();
         }
 
-        public string buildJsonString() {
+        public String buildJsonString() {
             var jsonString = new StringBuilder( "{" );
 
             jsonString.Append( buildNodeJsonString() );
@@ -107,50 +107,50 @@ namespace GraphDataStructure {
             return jsonString.ToString();
         }
 
-        public static Graph populate( string publicAddress, int degree, int tooBigToAddToNetwork ) {
+        public static Graph Populate( String publicAddress, int degree, int tooBigToAddToNetwork ) {
             var database = new DBConnect();
             database.OpenConnection();
             database.SetMaxAddressQuerryTime( 500 );
             var graph = new Graph();
             var count = 0;
 
-            var currentDegree = new Queue<string>();
-            var nextDegree = new Queue<string>();
+            var currentDegree = new Queue<String>();
+            var nextDegree = new Queue<String>();
 
             graph.addNode( publicAddress, 0 );
             currentDegree.Enqueue( publicAddress );
 
             while ( count < degree ) {
                 var currentAddress = currentDegree.Dequeue();
-                Console.WriteLine( "Network has " + graph._nodeList.Count.ToString() + " nodes" );
-                Console.Write( currentAddress.ToString() + " Deg: " + count.ToString() + " Qrying " );
+                Console.WriteLine( "Network has {0} nodes", graph._nodeList.Count );
+                Console.Write( "{0} Deg: {1} Qrying ", currentAddress, count );
                 if ( currentAddress.Substring( 0, 5 ) != "1dice" ) {
                     var sendersList = database.getSentTo( currentAddress );
                     var reciverList = database.getRecivedFrom( currentAddress );
                     if ( sendersList != null && reciverList != null ) {
-                        Console.WriteLine( " Proc " + ( sendersList.Count + reciverList.Count ).ToString() + " trans" );
+                        Console.WriteLine( " Proc {0} trans", ( sendersList.Count + reciverList.Count ) );
                         if ( sendersList.Count < tooBigToAddToNetwork ) {
                             foreach ( var sender in sendersList ) {
-                                if ( !graph._index.ContainsKey( sender.target ) ) {
-                                    nextDegree.Enqueue( sender.target );
-                                    graph.addNode( sender.target, count + 1 );
+                                if ( !graph._index.ContainsKey( sender.Target ) ) {
+                                    nextDegree.Enqueue( sender.Target );
+                                    graph.addNode( sender.Target, count + 1 );
                                     //graph.addDirectedEdge(sender.source, sender.target, Convert.ToDecimal(sender.value), sender.weight, count+1);
                                 }
                                 //else
                                 {
-                                    graph.addDirectedEdge( sender.source, sender.target, Convert.ToDecimal( sender.value ), sender.weight, count + 1 );
+                                    graph.addDirectedEdge( sender.Source, sender.Target, Convert.ToDecimal( sender.Value ), sender.Weight, count + 1 );
                                 }
                             }
 
                             foreach ( var reciver in reciverList ) {
-                                if ( !graph._index.ContainsKey( reciver.source ) ) {
-                                    nextDegree.Enqueue( reciver.source );
-                                    graph.addNode( reciver.source, count + 1 );
+                                if ( !graph._index.ContainsKey( reciver.Source ) ) {
+                                    nextDegree.Enqueue( reciver.Source );
+                                    graph.addNode( reciver.Source, count + 1 );
                                     //graph.addDirectedEdge(reciver.source, reciver.target, Convert.ToDecimal(reciver.value), reciver.weight, count+1);
                                 }
                                 //else
                                 {
-                                    graph.addDirectedEdge( reciver.source, reciver.target, Convert.ToDecimal( reciver.value ), reciver.weight, count + 1 );
+                                    graph.addDirectedEdge( reciver.Source, reciver.Target, Convert.ToDecimal( reciver.Value ), reciver.Weight, count + 1 );
                                 }
                             }
                         }
@@ -160,7 +160,7 @@ namespace GraphDataStructure {
                 if ( currentDegree.Count <= 0 ) {
                     count++;
                     currentDegree = nextDegree;
-                    nextDegree = new Queue<string>();
+                    nextDegree = new Queue<String>();
                 }
             }
             database.CloseConnection();

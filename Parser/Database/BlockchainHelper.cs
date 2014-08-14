@@ -10,22 +10,24 @@ namespace Database {
             var mysqlInputList = new List<Simplifiednput>();
             var mysqlOutputList = new List<SimplifiedOutput>();
 
-            foreach ( var transaction in block.transactions ) {
+            foreach ( var transaction in block.Transactions ) {
                 foreach ( var input in transaction.inputs ) {
-                    var mysqlInput = new Simplifiednput();
-                    mysqlInput.transactionHash = truncateTransactionHashSixteen( BitConverter.ToString( transaction.thisTransactionHash ).Replace( "-", string.Empty ) );
-                    mysqlInput.previousTransactionHash = truncateTransactionHashSixteen( BitConverter.ToString( input.previousTransactionHash ).Replace( "-", string.Empty ) );
-                    mysqlInput.previousTransactionOutputIndex = input.previousTransactionIndex;
+                    var mysqlInput = new Simplifiednput {
+                                                            TransactionHash = truncateTransactionHashSixteen( BitConverter.ToString( transaction.thisTransactionHash ).Replace( "-", String.Empty ) ),
+                                                            PreviousTransactionHash = truncateTransactionHashSixteen( BitConverter.ToString( input.PreviousTransactionHash ).Replace( "-", String.Empty ) ),
+                                                            PreviousTransactionOutputIndex = input.PreviousTransactionIndex
+                                                        };
                     mysqlInputList.Add( mysqlInput );
                 }
-                uint outputIndexCounter = 0;
+                UInt32 outputIndexCounter = 0;
                 foreach ( var output in transaction.outputs ) {
-                    var mysqlOutput = new SimplifiedOutput();
-                    mysqlOutput.value = output.value;
-                    mysqlOutput.publicAddress = output.publicKeyAddress;
-                    mysqlOutput.index = outputIndexCounter;
-                    mysqlOutput.transactionHash = truncateTransactionHashSixteen( BitConverter.ToString( transaction.thisTransactionHash ).Replace( "-", string.Empty ) );
-                    mysqlOutput.timestamp = block.timeStamp;
+                    var mysqlOutput = new SimplifiedOutput {
+                                                               Value = output.value,
+                                                               PublicAddress = output.publicKeyAddress,
+                                                               Index = outputIndexCounter,
+                                                               TransactionHash = truncateTransactionHashSixteen( BitConverter.ToString( transaction.thisTransactionHash ).Replace( "-", String.Empty ) ),
+                                                               Timestamp = block.TimeStamp
+                                                           };
                     mysqlOutputList.Add( mysqlOutput );
                     outputIndexCounter++;
                 }
@@ -35,7 +37,7 @@ namespace Database {
             mysql.InsertOutputs( mysqlOutputList );
         }
 
-        private static string truncateTransactionHashSixteen( string hash ) {
+        private static String truncateTransactionHashSixteen( String hash ) {
             return hash.Substring( 0, 16 );
         }
     }

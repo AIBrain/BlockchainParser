@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Parser
+﻿namespace Parser
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main(String[] args)
         {
             Parser.Parse(@"S:\Bitcoin\Blockchain\blocks\");
         }

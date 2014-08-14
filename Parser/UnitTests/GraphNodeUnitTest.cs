@@ -1,5 +1,4 @@
-﻿using System;
-using GraphDataStructure;
+﻿using GraphDataStructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests

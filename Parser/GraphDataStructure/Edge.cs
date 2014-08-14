@@ -1,25 +1,26 @@
 ﻿namespace GraphDataStructure {
+    using System;
 
     public class Edge {
-        private uint _weight;
-        private decimal _value;
+        private UInt32 _weight;
+        private Decimal _value;
         private int _degree;
 
-        public Edge( Node target, decimal value, uint weight ) {
+        public Edge( Node target, Decimal value, UInt32 weight ) {
             this.Target = target;
             this._value = value;
             this._weight = weight;
             this._degree = 0;
         }
 
-        public Edge( Node target, decimal value, uint weight, int degree ) {
+        public Edge( Node target, Decimal value, UInt32 weight, int degree ) {
             this.Target = target;
             this._value = value;
             this._weight = weight;
             this._degree = degree;
         }
 
-        public uint Weight {
+        public UInt32 Weight {
             get {
                 return this._weight;
             }
@@ -33,7 +34,7 @@
             private set;
         }
 
-        public decimal Value {
+        public Decimal Value {
             get {
                 return this._value;
             }
@@ -49,7 +50,7 @@
             return false;
         }
 
-        public void addValue( decimal value ) {
+        public void addValue( Decimal value ) {
             this._value += value;
         }
 

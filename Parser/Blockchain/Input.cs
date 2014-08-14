@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Blockchain
+﻿namespace Blockchain
 {
+    using System;
+
     public class Input
     {
-        public byte[] previousTransactionHash;
-        public uint previousTransactionIndex;
-        public ulong VL_scriptLength;
-        public byte[] VL_inputScript;
-        public uint sequenceNumber;
+        public Byte[] PreviousTransactionHash;
+        public UInt32 PreviousTransactionIndex;
+        public UInt64 VL_scriptLength;
+        public Byte[] VL_inputScript;
+        public UInt32 SequenceNumber;
     }
 }

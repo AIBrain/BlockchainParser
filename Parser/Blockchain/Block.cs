@@ -1,24 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Blockchain
 {
-    public class Block
+    using System;
+
+    public sealed class Block
     {
         public Block()
         {
-            transactions = new List<BlockchainTransaction>();
+            this.Transactions = new List<BlockchainTransaction>();
         }
-        public uint versionNumber;
-        public byte[] previousBlockHash;
-        public byte[] merkleRootHash;
-        public uint timeStamp;
-        public uint targetDifficulty;
-        public uint nonce;
-        public ulong VL_transactionCount;
-        public List<BlockchainTransaction> transactions;
+        public UInt32 VersionNumber;
+        public Byte[] PreviousBlockHash;
+        public Byte[] MerkleRootHash;
+        public UInt32 TimeStamp;
+        public UInt32 TargetDifficulty;
+        public UInt32 Nonce;
+        public UInt64 VlTransactionCount;
+        public readonly List<BlockchainTransaction> Transactions;
     }
 }

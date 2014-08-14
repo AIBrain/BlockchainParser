@@ -1,9 +1,10 @@
 ﻿namespace Database {
+    using System;
 
     public class Transaction {
-        public string source;
-        public string target;
-        public decimal value;
-        public uint weight;
+        public String Source;
+        public String Target;
+        public Decimal Value;
+        public UInt32 Weight;
     }
 }

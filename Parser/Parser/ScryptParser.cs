@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Blockchain;
 
 namespace Parser
@@ -11,8 +7,8 @@ namespace Parser
     {
         public static int unparsibleOuptuAddresses = 0;
         public static int invalidOutputAddresses = 0;
-        public static ulong outputs = 0;
-        public static string getPublicKey(byte[] scrypt)
+        public static UInt64 outputs = 0;
+        public static String getPublicKey(Byte[] scrypt)
         {
             outputs++;
             var length = scrypt.Length;
@@ -20,45 +16,42 @@ namespace Parser
             {
                 return sixtySevenByte(scrypt);
             }
-            else if (length == 66)
+            if (length == 66)
             {
                 return sixtySixByte(scrypt);
             }
-            else if (length == 25)
+            if (length == 25)
             {
                 return twentyFiveByte(scrypt);
             }
-            else if (length < 20)
+            if (length < 20)
             {
                 invalidOutputAddresses++;
                 return lessThanTwenty();
             }
-            else
-            {
-                unparsibleOuptuAddresses++;
-            }
+            unparsibleOuptuAddresses++;
             unparsibleOuptuAddresses++;
             return "";
         }
-        private static string sixtySevenByte(byte[] scrypt)
+        private static String sixtySevenByte(Byte[] scrypt)
         {
-            var key = new byte[65];
+            var key = new Byte[65];
             Array.Copy(scrypt, 1, key, 0, 65);
             return AddressHelper.EllipticCurveToBTCAddress(key);
         }
-        private static string sixtySixByte(byte[] scrypt)
+        private static String sixtySixByte(Byte[] scrypt)
         {
-            var key = new byte[65];
+            var key = new Byte[65];
             Array.Copy(scrypt, key, 65);
             return AddressHelper.EllipticCurveToBTCAddress(key);
         }
-        private static string twentyFiveByte(byte[] scrypt)
+        private static String twentyFiveByte(Byte[] scrypt)
         {
-            var key = new byte[20];
+            var key = new Byte[20];
             Array.Copy(scrypt, 3, key, 0, 20);
             return AddressHelper.ripemdToBTCAddress(key);
         }
-        private static string lessThanTwenty()
+        private static String lessThanTwenty()
         {
             return "Unspendable";
         }

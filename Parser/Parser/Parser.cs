@@ -1,9 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Blockchain;
 using Database;
 
@@ -11,8 +7,8 @@ namespace Parser
 {
     static class Parser
     {
-        static bool shouldExit = false;
-        static public void Parse(string path)
+        static bool shouldExit;
+        static public void Parse(String path)
         {
             var fileIndex = 0;
             var mysql = new DBConnect();
@@ -24,7 +20,7 @@ namespace Parser
                 if (File.Exists(fileName))
                 {
                     var currentFile = File.ReadAllBytes(fileName);
-                    //List<uint> blockIndexes = buildIndex(ref currentFile);
+                    //List<UInt32> blockIndexes = buildIndex(ref currentFile);
                     parseFileDataIntoClasses(ref currentFile, mysql);
                     fileIndex++;
                     Console.WriteLine("Finished proccessing file " + fileName);
@@ -35,15 +31,14 @@ namespace Parser
                     mysql.UnlockTables();
                     mysql.CloseConnection();
                     Console.WriteLine("Done.");
-                    Console.WriteLine("Outputs" + ScryptParser.outputs.ToString());
-                    Console.WriteLine("Invalid : " + ScryptParser.invalidOutputAddresses.ToString());
-                    Console.WriteLine("Unparsible : " + ScryptParser.unparsibleOuptuAddresses.ToString());
+                    Console.WriteLine("Outputs{0}", ScryptParser.outputs );
+                    Console.WriteLine("Invalid : {0}", ScryptParser.invalidOutputAddresses );
+                    Console.WriteLine("Unparsible : {0}", ScryptParser.unparsibleOuptuAddresses );
                     Console.ReadLine();
                 }
             }
         }
-        private static string getFileName(int fileIndex)
-        {
+        private static String getFileName(int fileIndex) {
             if (fileIndex <= 99999)
             {
                 var fileName = "blk";
@@ -56,13 +51,10 @@ namespace Parser
                 fileName += ".dat";
                 return fileName;
             }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
 
-        private static bool seekToNextHeader(ref uint cursor, ref byte[] currentFile)
+        private static bool seekToNextHeader(ref UInt32 cursor, ref Byte[] currentFile)
         {
             while (cursor + 3 < currentFile.Length)
             {
@@ -84,21 +76,21 @@ namespace Parser
             return false;
         }
 
-        private static byte[] getBlockData(ref uint cursor, ref byte[] currentFile)
+        private static Byte[] getBlockData(ref UInt32 cursor, ref Byte[] currentFile)
         {
-            var header = parseFourBytesToElement(ref cursor, ref currentFile);
-            var blockDataLength = parseFourBytesToElement(ref cursor, ref currentFile);
+            var header = ParseFourBytesToElement(ref cursor, ref currentFile);
+            var blockDataLength = ParseFourBytesToElement(ref cursor, ref currentFile);
             if (cursor + blockDataLength < currentFile.Length)
             {
-                var block = new byte[blockDataLength];
+                var block = new Byte[blockDataLength];
                 Array.Copy(currentFile, cursor, block, 0, blockDataLength);
                 return block;
             }
             return null;
         }
-        private static void parseFileDataIntoClasses(ref byte[] currentFile,DBConnect mysql)
+        private static void parseFileDataIntoClasses(ref Byte[] currentFile,DBConnect mysql)
         {
-            uint fileCursor = 0;
+            UInt32 fileCursor = 0;
             while(seekToNextHeader(ref fileCursor, ref currentFile))
             {
                 var blockData = getBlockData(ref fileCursor, ref currentFile);
@@ -113,36 +105,38 @@ namespace Parser
             }
         }
 
-        private static Block parseBlockDataIntoClass(byte[] blockByteArray)
+        private static Block parseBlockDataIntoClass(Byte[] blockByteArray)
         {
-            uint cursor = 0;
-            var block = new Block();
+            UInt32 cursor = 0;
+            var block = new Block {
+                                      VersionNumber = ParseFourBytesToElement( ref cursor, ref blockByteArray ),
+                                      PreviousBlockHash = parseThirtyTwoBytesToElement( ref cursor, ref blockByteArray ),
+                                      MerkleRootHash = parseThirtyTwoBytesToElement( ref cursor, ref blockByteArray ),
+                                      TimeStamp = ParseFourBytesToElement( ref cursor, ref blockByteArray ),
+                                      TargetDifficulty = ParseFourBytesToElement( ref cursor, ref blockByteArray ),
+                                      Nonce = ParseFourBytesToElement( ref cursor, ref blockByteArray ),
+                                      VlTransactionCount = parseVaribleLengthInteger( ref cursor, ref blockByteArray )
+                                  };
 
-            block.versionNumber = parseFourBytesToElement(ref cursor, ref blockByteArray);
-            block.previousBlockHash = parseThirtyTwoBytesToElement(ref cursor, ref blockByteArray);
-            block.merkleRootHash = parseThirtyTwoBytesToElement(ref cursor, ref blockByteArray);
-            block.timeStamp = parseFourBytesToElement(ref cursor, ref blockByteArray);
-            block.targetDifficulty = parseFourBytesToElement(ref cursor, ref blockByteArray);
-            block.nonce = parseFourBytesToElement(ref cursor, ref blockByteArray);
-            block.VL_transactionCount = parseVaribleLengthInteger(ref cursor, ref blockByteArray);
             //Block class is done, moving to transaction
 
-            for (ulong i = 0; i < block.VL_transactionCount; i++)
+            for (UInt64 i = 0; i < block.VlTransactionCount; i++)
             {
                 var transaction = new BlockchainTransaction();
                 var transactionCursor = cursor;
-                transaction.transactionVersionNumber = parseFourBytesToElement(ref cursor, ref blockByteArray);
+                transaction.TransactionVersionNumber = ParseFourBytesToElement(ref cursor, ref blockByteArray);
                 transaction.VL_inputCount = parseVaribleLengthInteger(ref cursor, ref blockByteArray);
 
                 //fill transaction inputs
-                for (ulong j = 0; j < transaction.VL_inputCount; j++)
+                for (UInt64 j = 0; j < transaction.VL_inputCount; j++)
                 {
-                    var input = new Input();
-                    input.previousTransactionHash = parseThirtyTwoBytesToElement(ref cursor, ref blockByteArray);
-                    input.previousTransactionIndex = parseFourBytesToElement(ref cursor, ref blockByteArray);
-                    input.VL_scriptLength = parseVaribleLengthInteger(ref cursor, ref blockByteArray);
-                    input.VL_inputScript = parseCustomLengthToElement(ref cursor, ref blockByteArray, input.VL_scriptLength);
-                    input.sequenceNumber = parseFourBytesToElement(ref cursor, ref blockByteArray);
+                    var input = new Input {
+                                              PreviousTransactionHash = parseThirtyTwoBytesToElement( ref cursor, ref blockByteArray ),
+                                              PreviousTransactionIndex = ParseFourBytesToElement( ref cursor, ref blockByteArray ),
+                                              VL_scriptLength = parseVaribleLengthInteger( ref cursor, ref blockByteArray )
+                                          };
+                    input.VL_inputScript = ParseCustomLengthToElement(ref cursor, ref blockByteArray, input.VL_scriptLength);
+                    input.SequenceNumber = ParseFourBytesToElement(ref cursor, ref blockByteArray);
 
                     transaction.inputs.Add(input);
                 }
@@ -150,91 +144,89 @@ namespace Parser
                 transaction.VL_outputCount = parseVaribleLengthInteger(ref cursor, ref blockByteArray);
 
                 //fill transaction outputs
-                for (ulong k = 0; k < transaction.VL_outputCount; k++)
+                for (UInt64 k = 0; k < transaction.VL_outputCount; k++)
                 {
-                    var output = new Output();
-                    output.value = parseEightBytesToElement(ref cursor, ref blockByteArray);
+                    var output = new Output {
+                                                value = parseEightBytesToElement( ref cursor, ref blockByteArray ),
+                                                VL_outputScriptLength = parseVaribleLengthInteger( ref cursor, ref blockByteArray )
+                                            };
 
-                    output.VL_outputScriptLength = parseVaribleLengthInteger(ref cursor, ref blockByteArray);
-                    output.publicKeyAddress = ScryptParser.getPublicKey(parseCustomLengthToElement(ref cursor, ref blockByteArray, output.VL_outputScriptLength));
+                    output.publicKeyAddress = ScryptParser.getPublicKey(ParseCustomLengthToElement(ref cursor, ref blockByteArray, output.VL_outputScriptLength));
 
                     transaction.outputs.Add(output);
                 }
 
-                transaction.transactionLockTime = parseFourBytesToElement(ref cursor, ref blockByteArray);
+                transaction.TransactionLockTime = ParseFourBytesToElement(ref cursor, ref blockByteArray);
 
-                var wholeTransactionData = new byte[cursor - transactionCursor];
+                var wholeTransactionData = new Byte[cursor - transactionCursor];
                 Array.Copy(blockByteArray, transactionCursor, wholeTransactionData, 0, cursor - transactionCursor);
                 transaction.thisTransactionHash = wholeTransactionData;
-                block.transactions.Add(transaction);
+                block.Transactions.Add(transaction);
             }
             return block;
         }
-        private static uint parseFourBytesToElement(ref uint cursor, ref byte[] blockByteArray)
+        private static UInt32 ParseFourBytesToElement(ref UInt32 cursor, ref Byte[] blockByteArray)
         {
-            var buffer = new byte[4];
+            var buffer = new Byte[4];
             Array.Copy(blockByteArray, cursor, buffer, 0, 4);
             cursor += 4;
             return BitConverter.ToUInt32(buffer, 0);
         }
-        private static ulong parseEightBytesToElement(ref uint cursor, ref byte[] blockByteArray)
+        private static UInt64 parseEightBytesToElement(ref UInt32 cursor, ref Byte[] blockByteArray)
         {
-            var buffer = new byte[8];
+            var buffer = new Byte[8];
             Array.Copy(blockByteArray, cursor, buffer, 0, 8);
             cursor += 8;
             return BitConverter.ToUInt64(buffer, 0);
         }
-        private static byte[] parseThirtyTwoBytesToElement(ref uint cursor, ref byte[] blockByteArray)
+        private static Byte[] parseThirtyTwoBytesToElement(ref UInt32 cursor, ref Byte[] blockByteArray)
         {
-            var buffer = new byte[32];
+            var buffer = new Byte[32];
             Array.Copy(blockByteArray, cursor, buffer, 0, 32);
             cursor += 32;
             return buffer;
         }
-        private static UInt64 parseVaribleLengthInteger(ref uint cursor, ref byte[] blockByteArray)
+        private static UInt64 parseVaribleLengthInteger(ref UInt32 cursor, ref Byte[] blockByteArray)
         {
-            var buffer = new byte[2];
+            var buffer = new Byte[2];
             buffer[0] = blockByteArray[cursor];
-            uint transactionCount = BitConverter.ToUInt16(buffer, 0);
+            UInt32 transactionCount = BitConverter.ToUInt16(buffer, 0);
             if (transactionCount < 253)
             {
                 cursor += 1;
                 return transactionCount;
                  
             }
-            else if (transactionCount == 253)
+            if (transactionCount == 253)
             {
-                buffer = new byte[2];
+                buffer = new Byte[2];
                 Array.Copy(blockByteArray, cursor + 1, buffer, 0, 2);
                 cursor += 3;
                 return BitConverter.ToUInt16(buffer, 0);
                 
             }
-            else if (transactionCount == 254)
+            if (transactionCount == 254)
             {
-                buffer = new byte[4];
+                buffer = new Byte[4];
                 Array.Copy(blockByteArray, cursor + 1, buffer, 0, 4);
                 cursor += 5;
                 return BitConverter.ToUInt32(buffer, 0);
             }
-            else if (transactionCount == 255)
+            if (transactionCount == 255)
             {
-                buffer = new byte[8];
+                buffer = new Byte[8];
                 Array.Copy(blockByteArray, cursor + 1, buffer, 0, 8);
                 cursor += 9;
                 return BitConverter.ToUInt64(buffer, 0);
             }
-            else
-            {
-                throw new NotImplementedException();
-            }
+            throw new NotImplementedException();
         }
-        private static byte[] parseCustomLengthToElement(ref uint cursor, ref byte[] blockByteArray, ulong length)
+        private static Byte[] ParseCustomLengthToElement(ref UInt32 cursor, ref Byte[] blockByteArray, UInt64 length)
         {
-            var buffer = new byte[length];
-            Array.Copy(blockByteArray, cursor, buffer, 0, (uint)length);
+            var buffer = new Byte[length];
+            Array.Copy(blockByteArray, cursor, buffer, 0, (UInt32)length);
             //Array.Reverse(buffer);
-            cursor += (uint)length;
+            cursor += (UInt32)length;
             return buffer;
         }
     }

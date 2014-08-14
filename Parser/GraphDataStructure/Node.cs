@@ -2,52 +2,36 @@
 using System.Linq;
 
 namespace GraphDataStructure {
+    using System;
 
     public class Node {
-        private string _address;
         private List<Edge> _neighbors;
-        private int _degree;
-        private uint _weight;
         // This is used to create a weighted graph
 
         public Node() {
-            this._address = null;
+            this.Address = null;
             this._neighbors = new List<Edge>();
-            this._weight = 1;
-            //this._value = new List<decimal>();
+            this.Weight = 1;
+            //this._value = new List<Decimal>();
         }
 
-        public Node( string data ) {
-            this._address = data;
+        public Node( String data ) {
+            this.Address = data;
             this._neighbors = new List<Edge>();
-            this._weight = 1;
-            //this._value = new List<decimal>();
+            this.Weight = 1;
+            //this._value = new List<Decimal>();
         }
 
-        public Node( string data, List<Edge> neighbors ) {
-            this._address = data;
+        public Node( String data, List<Edge> neighbors ) {
+            this.Address = data;
             this._neighbors = neighbors;
-            this._weight = 1;
-            //this._value = new List<decimal>();
+            this.Weight = 1;
+            //this._value = new List<Decimal>();
         }
 
-        public string Address {
-            set {
-                this._address = value;
-            }
-            get {
-                return this._address;
-            }
-        }
+        public string Address { get; set; }
 
-        public int Degree {
-            get {
-                return this._degree;
-            }
-            set {
-                this._degree = value;
-            }
-        }
+        public int Degree { get; set; }
 
         public List<Edge> Neighbors {
             set {
@@ -58,16 +42,9 @@ namespace GraphDataStructure {
             }
         }
 
-        public uint Weight {
-            get {
-                return this._weight;
-            }
-            set {
-                this._weight = value;
-            }
-        }
+        public uint Weight { get; set; }
 
-        public void addNeighbor( Node neighbor, decimal cost, uint weight, int degree ) {
+        public void addNeighbor( Node neighbor, Decimal cost, UInt32 weight, int degree ) {
             var newEdge = new Edge( neighbor, cost, weight, degree );
             if ( neighborExists( newEdge ) ) {
                 updateEdge( newEdge );
@@ -95,6 +72,7 @@ namespace GraphDataStructure {
             var index = getGraphNode( target );
             if ( index > -1 )
                 this._neighbors.ElementAt( index );
+            //TODO
         }
 
         public int getEdge( Edge edge ) {

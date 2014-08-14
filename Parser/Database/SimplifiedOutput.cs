@@ -1,10 +1,11 @@
 ﻿namespace Database {
+    using System;
 
     public class SimplifiedOutput {
-        public ulong value;
-        public string publicAddress;
-        public uint index;
-        public string transactionHash;
-        public uint timestamp;
+        public UInt64 Value;
+        public String PublicAddress;
+        public UInt32 Index;
+        public String TransactionHash;
+        public UInt32 Timestamp;
     }
 }
